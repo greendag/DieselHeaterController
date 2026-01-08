@@ -16,7 +16,7 @@ namespace Version
     // Semantic version components
     static constexpr uint8_t MAJOR = 0;
     static constexpr uint8_t MINOR = 1;
-    static constexpr uint16_t BUILD = 76;
+    static constexpr uint16_t BUILD = 81;
     
     /**
      * @brief Return the full version as a String in the form "MAJOR.MINOR.BUILD".

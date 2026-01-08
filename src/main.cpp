@@ -50,10 +50,12 @@ void setup()
   if (initSuccess && !Provisioning::instance().isProvisioned())
   {
     Logger::instance().info("Device not provisioned, starting provisioning mode");
+    // Show the original provisioning message first, then start provisioning
+    DisplayManager::instance().showStatus("Provisioning", "AP mode started");
     if (Provisioning::instance().start())
     {
+      // Provisioning::start() will update the display with the AP SSID and URL.
       OnBoardLed::instance().startBlink("#FFFF00", 5, 250, 250);
-      DisplayManager::instance().showStatus("Provisioning", "AP mode started");
     }
     else
     {

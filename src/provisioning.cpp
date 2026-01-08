@@ -125,8 +125,10 @@ bool Provisioning::start()
     Logger::instance().info(String("Provisioning: AP running, IP=") + ip.toString());
 
     // Show AP name and the provisioning URL on the display if available.
+    // Keep the top two lines for the generic provisioning message and
+    // print the SSID+URL on lines 3 and 4 (startLine = 2).
     String url = String("http://") + ip.toString();
-    DisplayManager::instance().showStatus(apName, url);
+    DisplayManager::instance().showStatusAt(2, apName, url);
     return true;
 }
 

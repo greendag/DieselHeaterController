@@ -30,16 +30,42 @@ void DisplayManager::showStatus(const String &line0, const String &line1)
 
     if (Display::instance().isSplashActive())
     {
-        _queuedLine0 = line0;
-        _queuedLine1 = line1;
+        _queuedLines[0] = line0;
+        _queuedLines[1] = line1;
         _queuedIsError = false;
         return;
     }
 
     Display::instance().clear();
-    Display::instance().printLine(0, line0.c_str());
+    Display::instance().printLine(0, line0);
     if (!line1.isEmpty())
-        Display::instance().printLine(1, line1.c_str());
+        Display::instance().printLine(1, line1);
+    Display::instance().update();
+}
+
+void DisplayManager::showStatusAt(uint8_t startLine, const String &line0, const String &line1)
+{
+    if (!Display::instance().available())
+        return;
+
+    // clamp startLine to valid range
+    if (startLine >= 8)
+        startLine = 0;
+
+    if (Display::instance().isSplashActive())
+    {
+        if (startLine < 8)
+            _queuedLines[startLine] = line0;
+        if (startLine + 1 < 8 && !line1.isEmpty())
+            _queuedLines[startLine + 1] = line1;
+        _queuedIsError = false;
+        return;
+    }
+
+    Display::instance().clear();
+    Display::instance().printLine(startLine, line0);
+    if (!line1.isEmpty())
+        Display::instance().printLine(startLine + 1, line1);
     Display::instance().update();
 }
 
@@ -50,14 +76,13 @@ void DisplayManager::showError(const String &msg)
 
     if (Display::instance().isSplashActive())
     {
-        _queuedLine0 = msg;
-        _queuedLine1 = String();
+        _queuedLines[0] = msg;
         _queuedIsError = true;
         return;
     }
 
     Display::instance().clear();
-    Display::instance().printLine(0, msg.c_str());
+    Display::instance().printLine(0, msg);
     Display::instance().update();
 }
 
@@ -70,16 +95,37 @@ void DisplayManager::run()
 void DisplayManager::onSplashFinished()
 {
     // If something was queued while the splash was active, show it now.
-    if (!_queuedLine0.isEmpty() || !_queuedLine1.isEmpty())
+    bool anyQueued = false;
+    for (int i = 0; i < 8; ++i)
+    {
+        if (!_queuedLines[i].isEmpty())
+        {
+            anyQueued = true;
+            break;
+        }
+    }
+
+    if (anyQueued)
     {
         if (_queuedIsError)
-            showError(_queuedLine0);
+        {
+            // Error messages are shown on line 0 only
+            showError(_queuedLines[0]);
+        }
         else
-            showStatus(_queuedLine0, _queuedLine1);
+        {
+            Display::instance().clear();
+            for (uint8_t i = 0; i < 8; ++i)
+            {
+                if (!_queuedLines[i].isEmpty())
+                    Display::instance().printLine(i, _queuedLines[i]);
+            }
+            Display::instance().update();
+        }
 
         // Clear queue
-        _queuedLine0 = String();
-        _queuedLine1 = String();
+        for (int i = 0; i < 8; ++i)
+            _queuedLines[i] = String();
         _queuedIsError = false;
     }
 }

@@ -13,6 +13,10 @@ public:
 
     // Show two-line status; second line may be empty.
     void showStatus(const String &line0, const String &line1 = String());
+    // Show two-line status starting at a specific logical line (0..7).
+    // Useful for multi-line layouts where callers want to place text
+    // at arbitrary rows (e.g., show additional info on lines 2..3).
+    void showStatusAt(uint8_t startLine, const String &line0, const String &line1 = String());
 
     // Show a single-line error message (on line 0).
     void showError(const String &msg);
@@ -25,9 +29,8 @@ public:
 
 private:
     DisplayManager() = default;
-    // Queued message shown after splash finishes (if any)
-    String _queuedLine0;
-    String _queuedLine1;
+    // Queued lines shown after splash finishes (up to 8 logical text rows)
+    String _queuedLines[8];
     bool _queuedIsError = false;
 
     // Called by the display when the splash finishes.
