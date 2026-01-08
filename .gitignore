@@ -1,0 +1,10 @@
+.pio/
+.pioenvs/
+build/
+lib_deps/
+.platformio/
+.vscode/
+*.elf
+*.bin
+*.hex
+.DS_Store
